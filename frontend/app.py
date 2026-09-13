@@ -13,7 +13,7 @@ base_directory = os.path.dirname(
 sys.path.insert(0, base_directory)
 sys.path.insert(0, base_directory + "/backend")
 
-from backend.pipeline import LegalDocumentGenerator"
+from backend.pipeline import LegalDocumentGenerator
 
 st.title("Legal Document Generator")
 
