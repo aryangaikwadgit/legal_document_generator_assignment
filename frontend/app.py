@@ -3,12 +3,17 @@ import sys
 
 import streamlit as st
 
-base_directory = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+os.environ["OLLAMA_API_KEY"] = st.secrets["OLLAMA_API_KEY"]
+os.environ["OLLAMA_MODEL"] = st.secrets["OLLAMA_MODEL"]
+
+base_directory = os.path.dirname(
+    os.path.dirname(os.path.abspath(__file__))
+)
 
 sys.path.insert(0, base_directory)
 sys.path.insert(0, base_directory + "/backend")
 
-from backend.pipeline import LegalDocumentGenerator
+from backend.pipeline import LegalDocumentGenerator"
 
 st.title("Legal Document Generator")
 
