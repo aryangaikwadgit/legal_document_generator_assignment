@@ -9,10 +9,12 @@ from src.schemas import CaseInformation
 
 class CaseExtractor:
 
-    def __init__(self):
+    def __init__(self, token_tracker=None):
         self.model = ChatOllama(model=ollama_model)
+
         self.parser = PydanticOutputParser(pydantic_object=CaseInformation)
-        self.batch_size = 3
+
+        self.token_tracker = token_tracker
 
         self.prompt = PromptTemplate(
             template=EXTRACTION_PROMPT,
@@ -22,24 +24,18 @@ class CaseExtractor:
             },
         )
 
-        # Create the extraction chain
         self.chain = self.prompt | self.model | self.parser
 
     def extract(self, chunks):
+        document_text = "\n\n".join(chunks)
 
-        extracted_data = []
+        response = self.chain.invoke({"document_text": document_text})
 
-        # Process the document in batches of 3 chunks
-        for i in range(0, len(chunks), self.batch_size):
+        if self.token_tracker and hasattr(response, "usage_metadata"):
+            usage = response.usage_metadata
+            self.token_tracker.add(
+                input_tokens=usage.get("input_tokens", 0),
+                output_tokens=usage.get("output_tokens", 0),
+            )
 
-            batch = chunks[i : i + self.batch_size]
-
-            # Join the chunks in the current batch
-            document_text = "\n\n".join(batch)
-
-            # Run the extraction chain
-            batch_data = self.chain.invoke({"document_text": document_text})
-
-            extracted_data.append(batch_data)
-
-        return extracted_data
+        return response
