@@ -10,10 +10,14 @@ ollama_model = os.getenv("OLLAMA_MODEL")
 try:
     import streamlit as st
 
+    print("DEBUG secrets keys available:", list(st.secrets.keys()))
+    print("DEBUG OLLAMA_MODEL in secrets:", st.secrets.get("OLLAMA_MODEL"))
+
     if st.secrets.get("OLLAMA_API_KEY"):
         ollama_api_key = st.secrets["OLLAMA_API_KEY"]
 
     if st.secrets.get("OLLAMA_MODEL"):
         ollama_model = st.secrets["OLLAMA_MODEL"]
-except Exception:
-    pass
+
+except Exception as e:
+    print("DEBUG secrets access FAILED:", repr(e))
