@@ -1,0 +1,26 @@
+{
+    "document_type": "Affidavit in Reply",
+    "overall_score": 100.0,
+    "dimension_scores": {
+        "entity_accuracy": 100.0,
+        "completeness": 100.0,
+        "structure": 100.0,
+        "consistency": 100.0,
+        "template_fidelity": 100.0,
+        "hallucination": 100.0
+    },
+    "validation_summary": {
+        "passed_checks": 9,
+        "total_checks": 9
+    },
+    "detected_issues": [],
+    "observations": [
+        "All supplied case entities were preserved in the generated document.",
+        "The document contains 7 sequential numbered body paragraphs.",
+        "Required document sections appear in the expected structural order.",
+        "The generated document follows the main formatting conventions of the reference affidavit.",
+        "No unsupported case-specific facts were detected.",
+        "All supplied exhibit references were detected."
+    ],
+    "score_calculation": "Overall score is calculated as the percentage of deterministic validation checks that passed: 9 / 9 × 100."
+}

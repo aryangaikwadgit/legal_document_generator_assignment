@@ -12,11 +12,8 @@ __pycache__/
 .vscode/
 .idea/
 
-# Generated outputs
-outputs/*
 
-# Keep output folder
-!outputs/.gitkeep
+
 
 # OS files
 .DS_Store
