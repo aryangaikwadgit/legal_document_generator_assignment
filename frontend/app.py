@@ -1,5 +1,14 @@
-import requests
+import os
+import sys
+
 import streamlit as st
+
+base_directory = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
+sys.path.insert(0, base_directory)
+sys.path.insert(0, base_directory + "/backend")
+
+from backend.pipeline import LegalDocumentGenerator
 
 st.title("Legal Document Generator")
 
@@ -13,64 +22,83 @@ if st.button("Generate Document"):
     if case_pdf is None:
         st.warning("Please upload the Case Information PDF.")
     else:
-        files = {
-            "case_pdf": (
-                case_pdf.name,
-                case_pdf.getvalue(),
-                "application/pdf",
-            )
-        }
+        case_pdf_path = base_directory + "/outputs/uploaded_case_information.pdf"
+
+        format_pdf_path = (
+            base_directory + "/data/reference/01 Affidavit Format Explained.pdf"
+        )
+
+        sample_pdf_path = (
+            base_directory + "/data/reference/02 Affidavit in Reply Sample.docx.pdf"
+        )
+
+        output_directory = base_directory + "/outputs"
+
+        os.makedirs(
+            output_directory,
+            exist_ok=True,
+        )
+
+        with open(case_pdf_path, "wb") as file:
+            file.write(case_pdf.getvalue())
 
         with st.spinner("Generating document..."):
-            response = requests.post(
-                "http://127.0.0.1:8000/generate",
-                files=files,
+
+            generator = LegalDocumentGenerator(
+                case_pdf_path,
+                format_pdf_path,
+                sample_pdf_path,
+                output_directory,
             )
 
-        if response.status_code == 200:
+            result = generator.generate()
 
-            result = response.json()
+        st.success("Document generated successfully.")
 
-            st.success("Document generated successfully.")
+        st.subheader("Entity Extraction")
+        st.json(result["extracted_data"].model_dump())
 
-            st.subheader("Entity Extraction")
-            st.json(result["entities"])
+        st.subheader("Content Mapping")
+        st.json(result["mapped_content"])
 
-            st.subheader("Content Mapping")
-            st.json(result["mapping"])
+        st.subheader("Evaluation")
+        st.json(result["evaluation"])
 
-            st.subheader("Evaluation")
-            st.json(result["evaluation"])
+        st.subheader("Generated Document")
 
-            st.subheader("Generated Document")
-
-            pdf_response = requests.get("http://127.0.0.1:8000/download/pdf")
+        with open(
+            result["pdf_path"],
+            "rb",
+        ) as file:
 
             st.download_button(
                 "Download Affidavit PDF",
-                pdf_response.content,
+                file,
                 "affidavit_in_reply.pdf",
                 "application/pdf",
             )
 
-            docx_response = requests.get("http://127.0.0.1:8000/download/docx")
+        with open(
+            result["affidavit_path"],
+            "rb",
+        ) as file:
 
             st.download_button(
                 "Download Affidavit DOCX",
-                docx_response.content,
+                file,
                 "affidavit_in_reply.docx",
             )
 
-            st.subheader("Evaluation Report")
+        st.subheader("Evaluation Report")
 
-            report_response = requests.get("http://127.0.0.1:8000/evaluation-report")
+        with open(
+            result["report_path"],
+            "rb",
+        ) as file:
 
             st.download_button(
                 "Download Evaluation Report",
-                report_response.content,
+                file,
                 "evaluation_report.json",
                 "application/json",
             )
-
-        else:
-            st.error("Document generation failed.")
