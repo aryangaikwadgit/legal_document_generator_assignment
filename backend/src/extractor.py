@@ -2,7 +2,7 @@ from langchain_ollama import ChatOllama
 from langchain_core.output_parsers import PydanticOutputParser
 from langchain_core.prompts import PromptTemplate
 
-from src.config import ollama_model
+from src.config import ollama_api_key, ollama_model
 from src.prompts import EXTRACTION_PROMPT
 from src.schemas import CaseInformation
 
@@ -10,7 +10,11 @@ from src.schemas import CaseInformation
 class CaseExtractor:
 
     def __init__(self, token_tracker=None):
-        self.model = ChatOllama(model=ollama_model)
+        self.model = ChatOllama(
+            model=ollama_model,
+            base_url="https://ollama.com",
+            client_kwargs={"headers": {"Authorization": f"Bearer {ollama_api_key}"}},
+        )
 
         self.parser = PydanticOutputParser(pydantic_object=CaseInformation)
 
